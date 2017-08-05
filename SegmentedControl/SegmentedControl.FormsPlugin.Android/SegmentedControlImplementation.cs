@@ -13,188 +13,203 @@ namespace SegmentedControl.FormsPlugin.Android
     /// SegmentedControl Renderer
     /// </summary>
     public class SegmentedControlRenderer : ViewRenderer<Abstractions.SegmentedControl, RadioGroup>
-	{
-		RadioGroup nativeControl;
-		RadioButton _v;
+    {
+        RadioGroup nativeControl;
+        RadioButton _v;
 
-		protected override void OnElementChanged(ElementChangedEventArgs<Abstractions.SegmentedControl> e)
-		{
-			base.OnElementChanged(e);
+        /// <summary>
+        /// Ons the element changed.
+        /// </summary>
+        /// <param name="e">E.</param>
+        protected override void OnElementChanged(ElementChangedEventArgs<Abstractions.SegmentedControl> e)
+        {
+            base.OnElementChanged(e);
 
-			if (Control == null)
-			{
-				// Instantiate the native control and assign it to the Control property with
-				// the SetNativeControl method
-			}
+            if (Control == null)
+            {
+                // Instantiate the native control and assign it to the Control property with
+                // the SetNativeControl method
+            }
 
-			if (e.OldElement != null)
-			{
-				// Unsubscribe from event handlers and cleanup any resources
+            if (e.OldElement != null)
+            {
+                // Unsubscribe from event handlers and cleanup any resources
 
-				if (nativeControl != null)
-					nativeControl.CheckedChange -= NativeControl_ValueChanged;
+                if (nativeControl != null)
+                    nativeControl.CheckedChange -= NativeControl_ValueChanged;
 
-				if (Element != null)
-					Element.SizeChanged -= Element_SizeChanged;
-			}
+                if (Element != null)
+                    Element.SizeChanged -= Element_SizeChanged;
+            }
 
-			if (e.NewElement != null)
-			{
-				// Configure the control and subscribe to event handlers
+            if (e.NewElement != null)
+            {
+                // Configure the control and subscribe to event handlers
 
-				Element.SizeChanged += Element_SizeChanged;
-			}
-		}
+                Element.SizeChanged += Element_SizeChanged;
+            }
+        }
 
-        void Element_SizeChanged (object sender, EventArgs e)
-		{
-	        var layoutInflater = LayoutInflater.From(Forms.Context);
-            
-			nativeControl = (RadioGroup)layoutInflater.Inflate(Resource.Layout.RadioGroup, null);
+        void Element_SizeChanged(object sender, EventArgs e)
+        {
+            var layoutInflater = LayoutInflater.From(Forms.Context);
 
-			for (var i = 0; i < Element.Children.Count; i++)
-			{
-				var o = Element.Children[i];
-				var v = (RadioButton)layoutInflater.Inflate(Resource.Layout.RadioButton, null);
+            nativeControl = (RadioGroup)layoutInflater.Inflate(Resource.Layout.RadioGroup, null);
 
-				v.LayoutParameters = new RadioGroup.LayoutParams(0, LayoutParams.WrapContent, 1f);
-				v.Text = o.Text;
+            for (var i = 0; i < Element.Children.Count; i++)
+            {
+                var o = Element.Children[i];
+                var v = (RadioButton)layoutInflater.Inflate(Resource.Layout.RadioButton, null);
 
-				if (i == 0)
-					v.SetBackgroundResource(Resource.Drawable.segmented_control_first_background);
-				else if (i == Element.Children.Count - 1)
-					v.SetBackgroundResource(Resource.Drawable.segmented_control_last_background);
+                v.LayoutParameters = new RadioGroup.LayoutParams(0, LayoutParams.WrapContent, 1f);
+                v.Text = o.Text;
 
-				ConfigureRadioButton(i, v);
+                if (i == 0)
+                    v.SetBackgroundResource(Resource.Drawable.segmented_control_first_background);
+                else if (i == Element.Children.Count - 1)
+                    v.SetBackgroundResource(Resource.Drawable.segmented_control_last_background);
 
-				nativeControl.AddView(v);
-			}
+                ConfigureRadioButton(i, v);
 
-			var option = (RadioButton)nativeControl.GetChildAt(Element.SelectedSegment);
-			option.Checked = true;
+                nativeControl.AddView(v);
+            }
 
-			nativeControl.CheckedChange += NativeControl_ValueChanged;
+            var option = (RadioButton)nativeControl.GetChildAt(Element.SelectedSegment);
+            option.Checked = true;
 
-			SetNativeControl(nativeControl);
-		}
+            nativeControl.CheckedChange += NativeControl_ValueChanged;
 
-		protected override void OnElementPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			base.OnElementPropertyChanged(sender, e);
-            
-			switch (e.PropertyName)
-			{
-				case "Renderer":
+            SetNativeControl(nativeControl);
+        }
+
+        /// <summary>
+        /// Ons the element property changed.
+        /// </summary>
+        /// <param name="sender">Sender.</param>
+        /// <param name="e">E.</param>
+        protected override void OnElementPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            base.OnElementPropertyChanged(sender, e);
+
+            switch (e.PropertyName)
+            {
+                case "Renderer":
                     Element.SendValueChanged();
-					break;
-				case "SelectedSegment":
-					var option = (RadioButton)nativeControl.GetChildAt(Element.SelectedSegment);
+                    break;
+                case "SelectedSegment":
+                    var option = (RadioButton)nativeControl.GetChildAt(Element.SelectedSegment);
                     option.Checked = true;
                     Element.SendValueChanged();
-					break;
-				case "TintColor":
+                    break;
+                case "TintColor":
                     OnPropertyChanged();
-					break;
-				case "IsEnabled":
-					OnPropertyChanged();
-					break;
-				case "SelectedTextColor":
+                    break;
+                case "IsEnabled":
+                    OnPropertyChanged();
+                    break;
+                case "SelectedTextColor":
                     var v = (RadioButton)nativeControl.GetChildAt(Element.SelectedSegment);
-					v.SetTextColor(Element.SelectedTextColor.ToAndroid());
-					break;
-			}
-		}
+                    v.SetTextColor(Element.SelectedTextColor.ToAndroid());
+                    break;
+            }
+        }
 
-		void OnPropertyChanged()
-		{
-			for (var i = 0; i < Element.Children.Count; i++)
-			{
-				var v = (RadioButton)nativeControl.GetChildAt(i);
+        void OnPropertyChanged()
+        {
+            for (var i = 0; i < Element.Children.Count; i++)
+            {
+                var v = (RadioButton)nativeControl.GetChildAt(i);
 
-				ConfigureRadioButton(i, v);
-			}
-		}
+                ConfigureRadioButton(i, v);
+            }
+        }
 
-		void ConfigureRadioButton(int i, RadioButton v)
-		{
-			if (i == Element.SelectedSegment)
-			{
-				v.SetTextColor(Element.SelectedTextColor.ToAndroid());
-				_v = v;
-			}
-			else
-			{
-				var textColor = Element.IsEnabled ? Element.TintColor.ToAndroid() : Color.Gray.ToAndroid();
-				v.SetTextColor(textColor);
-			}
+        void ConfigureRadioButton(int i, RadioButton v)
+        {
+            if (i == Element.SelectedSegment)
+            {
+                v.SetTextColor(Element.SelectedTextColor.ToAndroid());
+                _v = v;
+            }
+            else
+            {
+                var textColor = Element.IsEnabled ? Element.TintColor.ToAndroid() : Color.Gray.ToAndroid();
+                v.SetTextColor(textColor);
+            }
 
-			GradientDrawable selectedShape;
-			GradientDrawable unselectedShape;
+            GradientDrawable selectedShape;
+            GradientDrawable unselectedShape;
 
-			var gradientDrawable = (StateListDrawable)v.Background;
-			var drawableContainerState = (DrawableContainer.DrawableContainerState)gradientDrawable.GetConstantState();
-			var children = drawableContainerState.GetChildren();
+            var gradientDrawable = (StateListDrawable)v.Background;
+            var drawableContainerState = (DrawableContainer.DrawableContainerState)gradientDrawable.GetConstantState();
+            var children = drawableContainerState.GetChildren();
 
-			// Doesnt works on API < 18
-			selectedShape = children[0] is GradientDrawable? (GradientDrawable)children[0] : (GradientDrawable)((InsetDrawable)children[0]).Drawable;
-			unselectedShape = children[1] is GradientDrawable? (GradientDrawable)children[1] : (GradientDrawable)((InsetDrawable)children[1]).Drawable;
+            // Doesnt works on API < 18
+            selectedShape = children[0] is GradientDrawable ? (GradientDrawable)children[0] : (GradientDrawable)((InsetDrawable)children[0]).Drawable;
+            unselectedShape = children[1] is GradientDrawable ? (GradientDrawable)children[1] : (GradientDrawable)((InsetDrawable)children[1]).Drawable;
 
-			var color = Element.IsEnabled ? Element.TintColor.ToAndroid() : Color.Gray.ToAndroid();
+            var color = Element.IsEnabled ? Element.TintColor.ToAndroid() : Color.Gray.ToAndroid();
 
-			selectedShape.SetStroke(3, color);
-			selectedShape.SetColor(color);
-			unselectedShape.SetStroke(3, color);
+            selectedShape.SetStroke(3, color);
+            selectedShape.SetColor(color);
+            unselectedShape.SetStroke(3, color);
 
-			v.Enabled = Element.IsEnabled;
-		}
+            v.Enabled = Element.IsEnabled;
+        }
 
-		void NativeControl_ValueChanged(object sender, RadioGroup.CheckedChangeEventArgs e)
-		{
-			var rg = (RadioGroup)sender;
-			if (rg.CheckedRadioButtonId != -1)
-			{
-				var id = rg.CheckedRadioButtonId;
-				var radioButton = rg.FindViewById(id);
-				var radioId = rg.IndexOfChild(radioButton);
+        void NativeControl_ValueChanged(object sender, RadioGroup.CheckedChangeEventArgs e)
+        {
+            var rg = (RadioGroup)sender;
+            if (rg.CheckedRadioButtonId != -1)
+            {
+                var id = rg.CheckedRadioButtonId;
+                var radioButton = rg.FindViewById(id);
+                var radioId = rg.IndexOfChild(radioButton);
 
-				var v = (RadioButton)rg.GetChildAt(radioId);
+                var v = (RadioButton)rg.GetChildAt(radioId);
 
-				var color = Element.IsEnabled ? Element.TintColor.ToAndroid() : Color.Gray.ToAndroid();
-				_v.SetTextColor(color);
-				v.SetTextColor(Element.SelectedTextColor.ToAndroid());
-				_v = v;
+                var color = Element.IsEnabled ? Element.TintColor.ToAndroid() : Color.Gray.ToAndroid();
+                _v.SetTextColor(color);
+                v.SetTextColor(Element.SelectedTextColor.ToAndroid());
+                _v = v;
 
-				Element.SelectedSegment = radioId;
-			}
-		}
+                Element.SelectedSegment = radioId;
+            }
+        }
 
-		protected override void Dispose(bool disposing)
-		{
-			if (nativeControl != null)
-			{
-				nativeControl.CheckedChange -= NativeControl_ValueChanged;
-				nativeControl.Dispose();
-				nativeControl = null;
-				_v = null;
-			}
+        /// <summary>
+        /// Dispose the specified disposing.
+        /// </summary>
+        /// <returns>The dispose.</returns>
+        /// <param name="disposing">If set to <c>true</c> disposing.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (nativeControl != null)
+            {
+                nativeControl.CheckedChange -= NativeControl_ValueChanged;
+                nativeControl.Dispose();
+                nativeControl = null;
+                _v = null;
+            }
 
-			if (Element != null)
-				Element.SizeChanged -= Element_SizeChanged;
+            if (Element != null)
+                Element.SizeChanged -= Element_SizeChanged;
 
-			try
-			{
-				base.Dispose(disposing);
-			}
-			catch
-			{
-				return;
-			}
-		}
+            try
+            {
+                base.Dispose(disposing);
+            }
+            catch
+            {
+                return;
+            }
+        }
         /// <summary>
         /// Used for registration with dependency service
         /// </summary>
-        public static void Init() {
-			var temp = DateTime.Now;
-		}
+        public static void Init()
+        {
+            var temp = DateTime.Now;
+        }
     }
 }
