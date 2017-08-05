@@ -185,7 +185,7 @@ namespace SegmentedControl.FormsPlugin.Android
 			{
 				base.Dispose(disposing);
 			}
-			catch (Exception ex)
+			catch
 			{
 				return;
 			}

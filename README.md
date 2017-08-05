@@ -16,7 +16,7 @@
 In your iOS and Android projects call:
 
 ``` c#
-Xamarin.Forms.Init();
+Xamarin.Forms.Forms.Init();
 SegmentedControlRenderer.Init();
 ```
 
