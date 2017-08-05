@@ -22,12 +22,16 @@ SegmentedControlRenderer.Init();
 
 #### XAML
 
-```xml
+``` xml
 xmlns:controls="clr-namespace:SegmentedControl.FormsPlugin.Abstractions;assembly=SegmentedControl.FormsPlugin.Abstractions"
 ```
 
-```xml
-<controls:SegmentedControl x:Name="SegControl" TintColor="#007AFF" SelectedSegment="0">
+``` xml
+<controls:SegmentedControl
+    x:Name="SegControl"
+    TintColor="#007AFF"
+    SelectedSegment="0"
+    ValueChanged="Handle_ValueChanged">
   <controls:SegmentedControl.Children>
     <controls:SegmentedControlOption Text="Tab 1" />
     <controls:SegmentedControlOption Text="Tab 2" />
@@ -42,7 +46,7 @@ xmlns:controls="clr-namespace:SegmentedControl.FormsPlugin.Abstractions;assembly
 #### Event handler
 
 ``` c#
-public void Handle_ValueChanged(object sender, ValueChangedEventArgs e)
+public void Handle_ValueChanged(object sender, SegmentedControl.FormsPlugin.Abstractions.ValueChangedEventArgs e)
 {
 	SegContent.Children.Clear();
 
